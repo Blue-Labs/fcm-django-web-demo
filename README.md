@@ -9,6 +9,7 @@ Quick demo to demonstrate the use of firebase web push notifications with the us
   - create virtual environment with `python -m virtualenv env` (or `python -m venv env` in Python 3)
   - activate virtual environment with `. env/bin/activate`
   - install necessary Python packages with `pip install -r mysite/requirements.txt`
+  - configure your FCM at https://console.firebase.google.com/u/0/project/<your project>/settings/cloudmessaging/
 
 ### frontend
 - in `fcm-django-web-demo/frontend`:
@@ -35,7 +36,49 @@ Quick demo to demonstrate the use of firebase web push notifications with the us
     ```
 - voila :)
 
-### optional HTTPS support
+### NOT really optional HTTPS support
+- recommended flow:
+  - Use nginx (or other webserver) as your frontend for SSL
+  - e.g.:
+```nginx
+    upstream ab-dev {
+        server localhost:8000;
+    }
+
+    server {
+        # listen to 443 only, IPv4 or IPv6, and accept HTTP2
+        listen               443 ssl http2;
+        listen               [::]:443 ssl http2;
+        server_name          ab-dev.blue-labs.org;
+
+        ssl_certificate      /etc/letsencrypt/live/ab-dev.blue-labs.org/fullchain.pem;
+        ssl_certificate_key  /etc/letsencrypt/live/ab-dev.blue-labs.org/privkey.pem;
+
+        # info to properly forward the connection to Django after SSL is
+        # setup
+        location / {
+            proxy_http_version 1.1;
+            proxy_read_timeout 300s;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header HTTP-Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_pass http://ab-dev;
+        }
+
+        # used for Let's Encrypt certbot
+        location /.well-known/acme-challenge {
+            root /var/lib/letsencrypt;
+            default_type "text/plain";
+            try_files $uri =404;
+        }
+    }
+```
+
 - *why would you want to do this?* because service workers will not work on http, unless you are running them on localhost
 - generate certificate and key with `openssl req -nodes -new -x509 -keyout key.pem -out cert.pem` in `fcm-django-web-demo`
 - in `fcm-django-web-demo/frontend`:

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'fcm_django',
     'corsheaders',
-    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -128,7 +127,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 FCM_DJANGO_SETTINGS = {
-        "FCM_SERVER_KEY": "AAAAUBWqdfo:APA91bEm3ib6_TlLIJ5YpAU6BjyQ7X9GoXeghkgqiBwNPPkr_FP9NjdhVk8EZqCUvgWUIf2vhk5eUnSkJELy7JtJfv1qOGM_UZtxu0FI3BkpUQMxdX-aO3xdvfTKteAkbAc2vXy1xCXu"
+        "FCM_SERVER_KEY": "[ your key from https://console.firebase.google.com/u/0/project/<your project>/settings/cloudmessaging/ ]"
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
